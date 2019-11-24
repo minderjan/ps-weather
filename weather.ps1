@@ -12,15 +12,18 @@ if ([string]::IsNullOrEmpty($WEATHER_KEY)) {
 
 function Start-App {
     
-    $weather = Get-Weather-Forecast("Zürich", "CH");
+    $weather = Get-Weather-Forecast -Location "zurich" -CountryCode "ch"
     Show-Weather-Data($weather)
 
 }
 
-function Get-Weather-Forecast([String]$Location, [string]$CountryCode, [int]$AmountDays = 5) {
+function Get-Weather-Forecast([String]$Location,[string]$CountryCode) {
 
     try {
-        $result = Invoke-RestMethod -Uri "https://api.openweathermap.org/data/2.5/forecast?q=London,us&appid=$($WEATHER_KEY)"
+        Write-Host $Location
+        $url = "https://api.openweathermap.org/data/2.5/forecast?q=$($Location),$($CountryCode)&appid=$($WEATHER_KEY)"
+        Write-Host "Request to: $url"
+        $result = Invoke-RestMethod -Uri $url
     } catch {
         Write-Host "StatusCode:" $_.Exception.Response.StatusCode.value__ 
         Write-Host "StatusDescription:" $_.Exception.Response
@@ -32,7 +35,7 @@ function Get-Weather-Forecast([String]$Location, [string]$CountryCode, [int]$Amo
 
 function Show-Weather-Data($InputWeather) {
     foreach ($w in $InputWeather.list){
-        Convert-FromUnixDate($w.dt)
+        Convert-FromUnixDate -UnixDate $w.dt
      }
 }
 
